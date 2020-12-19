@@ -20,7 +20,7 @@ def check_repeat(line, r42, r31, r0):
         return len(line) == 0 and i > j
     else: return False
 
-with open("input_part1.txt") as file:
+with open("input.txt") as file:
     rule_block, message_block = file.read().split("\n\n")
     rules = parse_rules([rule for rule in rule_block.split("\n")])
     r0, r42, r31 = regexify(rules, '0'), regexify(rules, '42'), regexify(rules, '31')
