@@ -11,15 +11,7 @@ class Tile:
             tmp = block.split("\n")
             self.id = int(re.search("[0-9]+", tmp[0]).group())
             self.matrix = np.array([np.array([1 if x == "#" else 0 for x in line]) for line in tmp[1:]]).T
-            self.edge_check = np.array(
-                [
-                    *self.edges(),
-                    np.flip(self.matrix[0, :]),
-                    np.flip(self.matrix[-1, :]),
-                    np.flip(self.matrix[:, 0]),
-                    np.flip(self.matrix[:, -1])
-                ]
-            )
+            self.edge_check = np.array([*self.edges(),*[np.flip(x) for x in self.edges()]])
 
     def match_edge(self, edge, tiles):
         return [tile.id for tile in tiles if tile.id != self.id and any(np.all(edge == tile.edge_check, 1))]
@@ -40,14 +32,7 @@ class Tile:
         self.matrix = np.flip(self.matrix, axis)
 
     def edges(self):
-        return np.array(
-            [
-                self.matrix[0, :],
-                self.matrix[-1, :],
-                self.matrix[:, 0],
-                self.matrix[:, -1]
-            ]
-        )
+        return np.array([self.matrix[0, :],self.matrix[-1, :],self.matrix[:, 0],self.matrix[:, -1]])
 
 def init_corner_match_fun(tile, prev_tile, tile_array, d):
     return tile.match_edge(tile.edges()[0], tile_array) == [] and tile.match_edge(tile.edges()[2], tile_array) == []
@@ -58,7 +43,6 @@ def normal_match_fun(tile, prev_tile, tile_array, d):
 
 def field_match_fun(k):
     return lambda tile, prev_tile, tile_array, d: np.sum(sg.convolve2d(tile.matrix, k) == np.sum(k))
-
 
 def match_tile_rotation(tile, prev_tile, tile_array, d,  match_fun):
     if match_fun(tile, prev_tile, tile_array, d): return tile
@@ -113,5 +97,5 @@ with open("input.txt") as file:
     a = Tile("")
     a.matrix = out
     match_tile_rotation(a, None, None, None, field_match_fun(k))
-    print(int(np.sum(a.matrix) - np.sum(k) * field_match_fun(k)(a, None, None, None)))
     print(prod(corners))
+    print(int(np.sum(a.matrix) - np.sum(k) * field_match_fun(k)(a, None, None, None)))
